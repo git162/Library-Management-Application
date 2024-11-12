@@ -1,4 +1,8 @@
-const { createBook, getBookDetails } = require("../models/bookModels");
+const {
+  createBook,
+  getBookDetails,
+  deleteBook,
+} = require("../models/bookModels");
 
 async function handleNewBook(req, res) {
   try {
@@ -27,4 +31,22 @@ async function getAllBooks(req, res) {
   }
 }
 
-module.exports = { handleNewBook, getAllBooks };
+async function removeBook(req, res) {
+  try {
+    const bookcode = req.params.bookcode;
+    const rowsDeleted = await deleteBook(bookcode); // Await the delete function
+
+    if (rowsDeleted > 0) {
+      res.status(200).json({ msg: "Book deleted successfully" });
+    } else {
+      res.status(404).json({ msg: "No book found with the given bookcode" });
+    }
+  } catch (err) {
+    res.status(500).json({
+      msg: "An error occurred",
+      err: err.message,
+    });
+  }
+}
+
+module.exports = { handleNewBook, getAllBooks, removeBook };

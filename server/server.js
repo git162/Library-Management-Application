@@ -4,12 +4,12 @@ const bodyParser = require("body-parser");
 const app = express();
 const adminRouter = require("./routes/admin.routes");
 const userRouter = require("./routes/user.routes");
-const bookRouter = require("./routes/book.routes");
+const librarianRouter = require("./routes/librarian.routes");
 
 app.use(bodyParser.json());
 app.use('/user', userRouter);
 app.use('/admin', adminRouter);
-app.use('/book', bookRouter);
+app.use('/librarian', librarianRouter);
 
 const PORT = process.env.SERVER_PORT || 3000;
 
