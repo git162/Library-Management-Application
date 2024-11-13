@@ -2,7 +2,8 @@ const {
   createBook,
   getBookDetails,
   deleteBook,
-} = require("../models/bookModels");
+  updateBookByCode,
+} = require("../models/librarianModels");
 
 async function handleNewBook(req, res) {
   try {
@@ -31,6 +32,22 @@ async function getAllBooks(req, res) {
   }
 }
 
+async function updateBook(req, res) {
+  const bookcode = req.params.bookcode;
+  try {
+    const result = await updateBookByCode(bookcode,req.body);
+    res.status(200).json({
+      msg: "Book Updated",
+      data:result
+    });
+  } catch (err) {
+    res.status(501).json({
+      msg: "Some error occured",
+      err,
+    });
+  }
+}
+
 async function removeBook(req, res) {
   try {
     const bookcode = req.params.bookcode;
@@ -49,4 +66,4 @@ async function removeBook(req, res) {
   }
 }
 
-module.exports = { handleNewBook, getAllBooks, removeBook };
+module.exports = { handleNewBook, getAllBooks, updateBook, removeBook };
