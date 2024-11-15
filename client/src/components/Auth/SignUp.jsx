@@ -1,11 +1,11 @@
-import React, { useEffect } from "react";
 import { useState } from "react";
 import { BsGoogle } from "react-icons/bs";
 import { MdPhoneIphone } from "react-icons/md";
 import "bootstrap/dist/css/bootstrap.min.css";
-
 import Carousel from "react-bootstrap/Carousel";
-import { set } from "zod";
+import { toast, ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
+
 
 const Signup = () => {
   const img1 =
@@ -19,6 +19,11 @@ const Signup = () => {
   const [password, setPassword] = useState("");
   const [user, setUser] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  function checkUserTypeAndProceed(){
+    if(user ==="user"){
+      handleSignup();
+    }
+  }
   const handleSignup = async () => {
     const url = "http://localhost:5000/user/signup";
     const data = {
@@ -40,16 +45,21 @@ const Signup = () => {
       }
       const result = await response.json();
       console.log("Success:", result);
-      alert("Signed in!!");
+      toast.success("Signed Up !!!", {
+        position: "top-center"
+      });
     } catch (error) {
-      console.error("Error:", error);
-      alert("Request failed!");
+      console.error("Unable to Sign Up!!!", error);
+      toast.error("Unable to Sign Up!!!", {
+        position: "top-center"
+      });
     } finally {
       setIsLoading(false); // Reset loading state
     }
   };
   return (
     <>
+      <ToastContainer />
       <div className="flex mt-20 justify-center gap-20">
         <div className="form-area  bg-slate-200 w-[40vw] h-[80vh] gap-1 rounded-md flex flex-col items-center">
           <h1 className="text-5xl mt-5 mb-3 text-slate-900">
@@ -108,8 +118,8 @@ const Signup = () => {
             onChange={(e) => setPassword(e.target.value)}
           />
           <button className="w-[80%] bg-slate-950 text-white h-[7%] rounded-md font-semibold "
-          onClick={handleSignup}>
-            Sign Up
+          onClick={checkUserTypeAndProceed}>
+            {isLoading?"Loading...":"Sign Up"}
           </button>
         </div>
         <div className="image-area bg-slate-200 w-[40vw] h-[60vh] rounded-md self-center">
