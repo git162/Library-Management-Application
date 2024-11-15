@@ -5,7 +5,9 @@ const app = express();
 const adminRouter = require("./routes/admin.routes");
 const userRouter = require("./routes/user.routes");
 const librarianRouter = require("./routes/librarian.routes");
+const cors = require('cors');
 
+app.use(cors());
 app.use(bodyParser.json());
 app.use('/user', userRouter);
 app.use('/admin', adminRouter);

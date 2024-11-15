@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { BsGoogle } from "react-icons/bs";
 import { MdPhoneIphone } from "react-icons/md";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 import Carousel from "react-bootstrap/Carousel";
+import { set } from "zod";
 
 const Signup = () => {
   const img1 =
@@ -17,7 +18,36 @@ const Signup = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState("");
-  console.log(user);
+  const [isLoading, setIsLoading] = useState(false);
+  const handleSignup = async () => {
+    const url = "http://localhost:5000/user/signup";
+    const data = {
+      username: username,
+      email: email,
+      password: password,
+    };
+    setIsLoading(true);
+    try {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(data),
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP error! Status: ${response.status}`);
+      }
+      const result = await response.json();
+      console.log("Success:", result);
+      alert("Signed in!!");
+    } catch (error) {
+      console.error("Error:", error);
+      alert("Request failed!");
+    } finally {
+      setIsLoading(false); // Reset loading state
+    }
+  };
   return (
     <>
       <div className="flex mt-20 justify-center gap-20">
@@ -45,7 +75,7 @@ const Signup = () => {
             id="userType"
             className="w-[80%] h-[7%] rounded-md px-10 border-slate-700 border-2"
             value={user}
-            onChange={(e)=>setUser(e.target.value)}
+            onChange={(e) => setUser(e.target.value)}
           >
             <option value="admin" className="hover:bg-slate-950">
               Admin
@@ -77,7 +107,8 @@ const Signup = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button className="w-[80%] bg-slate-950 text-white h-[7%] rounded-md font-semibold ">
+          <button className="w-[80%] bg-slate-950 text-white h-[7%] rounded-md font-semibold "
+          onClick={handleSignup}>
             Sign Up
           </button>
         </div>
