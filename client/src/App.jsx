@@ -1,9 +1,11 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import SignUp  from "./components/Auth/SignUp"
+import Header from "./components/Home/Header";
+import SignUp  from "./components/Auth/SignUp";
 export default function App() {
   return (
     <>
+      <Header/>
       <SignUp/>
     </>
   )
