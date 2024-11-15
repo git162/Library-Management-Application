@@ -38,14 +38,14 @@ async function createLoan(bookCode, email) {
     }
     const userId = userResult.rows[0].id;
 
-    const bookQuery = `SELECT id, available FROM booksTable WHERE bookCode = $1`;
+    const bookQuery = `SELECT id, status FROM booksTable WHERE bookCode = $1`;
     const bookResult = await client.query(bookQuery, [bookCode]);
 
     if (bookResult.rows.length === 0) {
       throw new Error("Book not found");
     }
 
-    if (bookResult.rows[0].available === false) {
+    if (bookResult.rows[0].status === "unavailable") {
       throw new Error("Book not available to issue");
     }
     const bookId = bookResult.rows[0].id;
@@ -55,7 +55,7 @@ async function createLoan(bookCode, email) {
     const loanValues = [userId, bookId, currentDate];
     const loanResult = await client.query(loanQuery, loanValues);
 
-    const updateAvailability = `UPDATE booksTable SET available = false WHERE id = $1`;
+    const updateAvailability = `UPDATE booksTable SET status = 'unavailable' WHERE id = $1`;
     await client.query(updateAvailability, [bookId]);
 
     return loanResult.rows[0];
@@ -86,7 +86,7 @@ async function deleteLoan(bookCode) {
       throw new Error("Loan record not found");
     }
 
-    const updateAvailability = `UPDATE booksTable SET available = true WHERE id = $1`;
+    const updateAvailability = `UPDATE booksTable SET status = 'available' WHERE id = $1`;
     await client.query(updateAvailability, [bookId]);
 
     return deleteResult.rows[0];
