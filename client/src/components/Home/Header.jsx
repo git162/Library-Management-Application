@@ -10,7 +10,7 @@ const Header = () => {
             <Link to={"/"} className="no-underline text-inherit">Home</Link>
           </li>
           <li className="hover:text-red-400">
-            <Link to={"#"} className="no-underline text-inherit">Books</Link>
+            <Link to={"/books"} className="no-underline text-inherit">Books</Link>
           </li>
           <li className="hover:text-red-400">
             <Link to={"#"} className="no-underline text-inherit">Account</Link>

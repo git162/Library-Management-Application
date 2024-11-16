@@ -21,12 +21,16 @@ const appRouter = createBrowserRouter([
     path: "/",
     element: <App />,
     children: [
-      {path:"/",element:<Container/>},
+      {path:"/books",element:<Container type={"display"}/>},
       {path:"/signup",element:<SignUp/>},
+      {
+        path:"/books/:bookType",
+        element: <Container type={"description"}/>,
+      }
     ]
   },
 ]);
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(<RouterProvider router={appRouter} />);
-// root.render(<App/>);
+

@@ -64,14 +64,27 @@ async function getBookDetails() {
 async function getBookDetailsByName() {
   const client = await getClient();
   try {
-    const query = `SELECT id, bookname, author, photolink, isbn, status, bookcategory
+    const query = `SELECT id, bookname, author, photolink, isbn, status,booktype, bookcategory
 FROM (
-    SELECT id, bookname, author, photolink, isbn, status, bookcategory,
+    SELECT id, bookname, author, photolink, isbn, status,booktype, bookcategory,
            ROW_NUMBER() OVER (PARTITION BY bookname ORDER BY id) AS row_num
     FROM bookstable
 ) AS ranked
 WHERE row_num = 1;`;
     const results = await client.query(query);
+    return results.rows;
+  } catch (err) {
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function getBookDetailsByType(type){
+  const client = await getClient();
+  try {
+    const query = `SELECT * from booksTable WHERE booktype = $1`;
+    const results = await client.query(query,[type]);
     return results.rows;
   } catch (err) {
     throw err;
@@ -133,4 +146,4 @@ async function deleteBook(bookcode) {
   }
 }
 
-module.exports = { createBook, getBookDetails, getBookDetailsByName, updateBookByCode, deleteBook };
+module.exports = { createBook, getBookDetails, getBookDetailsByName, getBookDetailsByType, updateBookByCode, deleteBook };

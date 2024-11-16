@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 const Card = ({
   photolink,
@@ -7,6 +8,8 @@ const Card = ({
   isbn,
   bookcategory,
   pageType,
+  booktype,
+  status,
 }) => {
   return (
     <div>
@@ -40,10 +43,37 @@ const Card = ({
             <span className="font-robotoCondensed font-bold">CATEGORY:</span>{" "}
             {" " + bookcategory}
           </h4>
+          {pageType === "description" && (
+            <h4
+              className={`text-sm font-robotoCondensed font-bold ${
+                status === "available" ? "text-green-500" : "text-red-500"
+              }`}
+            >
+              <span className="text-black">STATUS:</span>
+              {" " + status}
+            </h4>
+          )}
         </div>
-        <button className="ml-4 bg-black text-white px-3 py-1 font-robotoCondensed rounded-sm">
-          Get a Copy
-        </button>
+        {pageType === "display" ? (
+          <button className="ml-4 bg-black text-white px-3 py-1 font-robotoCondensed rounded-sm">
+            <Link
+              to={"/books/" + booktype}
+              className="no-underline text-inherit"
+            >
+              Get a Copy
+            </Link>
+          </button>
+        ) : (
+          <button className={`ml-4 text-white px-3 py-1 font-robotoCondensed rounded-sm ${
+            status === "available" ? "bg-green-500" : "bg-red-500"
+          }`}>
+            <Link
+              className="no-underline text-inherit"
+            >
+              Issue
+            </Link>
+          </button>
+        )}
       </div>
     </div>
   );

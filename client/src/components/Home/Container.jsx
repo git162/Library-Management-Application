@@ -1,30 +1,39 @@
 import React, { useState,useEffect } from 'react';
 import Card from './Card';
+import { useParams } from 'react-router-dom';
 
-const Container = () => {
-
+const Container = ({type}) => {
+    console.log(type);
     const [bookData, setBookData] = useState([]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-          try {
-            const response = await fetch("http://localhost:5000/user/booksbyname");
-            const jsonData = await response.json();
-            setBookData(jsonData);
-            console.log(jsonData);
-          } catch (error) {
-            console.error("Error fetching data:", error);
-          }
-        };
+    const { bookType } = type === "description" ? useParams() : {};
     
-        fetchData(); 
-      }, []); 
+
+    useEffect(() => {
+      const fetchData = async () => {
+          try {
+              const response = await fetch(
+                  type === "display"
+                  ? "http://localhost:5000/user/booksbyname"
+                  : "http://localhost:5000/user/booksbytype/" + bookType
+              );
+              const jsonData = await response.json();
+              setBookData(jsonData);
+              console.log(jsonData);
+          } catch (error) {
+              console.error("Error fetching data:", error);
+          }
+      };
+  
+      fetchData();
+  }, [type,bookType]);
+  
     
 
   return (
-    <div>
+    <div className='w-full h-full flex justify-center bg-slate-200'>
       <h4 className='font-roboto font-semibold'>ALL BOOKS</h4>
-      <div id="cards-container" className='bg-slate-200 min-h-screen flex overflow-x-hidden flex-wrap gap-7 min-w-screen mt-10 p-20'>
+      <div id="cards-container" className='bg-slate-200 min-h-screen flex overflow-x-hidden flex-wrap gap-7 min-w-screen mt-10 pt-20'>
        
         {
           bookData.map((elem) => (
@@ -35,7 +44,9 @@ const Container = () => {
               author={elem.author} 
               isbn={elem.isbn} 
               bookcategory={elem.bookcategory}
-              pageType = {"display"}
+              booktype={elem.booktype}
+              pageType = {type}
+              status = {elem.status}
             />
           ))
         }
