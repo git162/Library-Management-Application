@@ -15,7 +15,9 @@ export default function App() {
 }
 
 const appRouter = createBrowserRouter([
-  {
+  { future: {
+    v7_relativeSplatPath: true,
+  },
     path: "/",
     element: <App />,
     children: [

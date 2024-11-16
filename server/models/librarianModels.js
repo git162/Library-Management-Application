@@ -1,6 +1,15 @@
 const { getClient } = require("../db/connectDb");
 
-async function createBook({ bookName, bookCode, author, rackNo, photolink, bookType, isbn }) {
+async function createBook({
+  bookName,
+  bookCode,
+  author,
+  rackNo,
+  photoLink,
+  bookType,
+  isbn,
+  bookCategory,
+}) {
   const client = await getClient();
   try {
     console.log("Inside createBook");
@@ -9,11 +18,23 @@ async function createBook({ bookName, bookCode, author, rackNo, photolink, bookT
       bookCode,
       author,
       rackNo,
-      photolink,
+      photoLink,
+      bookType,
+      isbn,
+      bookCategory,
     });
 
-    const query = `INSERT INTO booksTable(bookName, bookCode, author, rackNo, photolink, bookType, isbn) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`;
-    const values = [bookName, bookCode, author, rackNo, photolink, bookType, isbn];
+    const query = `INSERT INTO booksTable(bookName, bookCode, author, rackNo, photolink, bookType, isbn, bookcategory) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`;
+    const values = [
+      bookName,
+      bookCode,
+      author,
+      rackNo,
+      photoLink,
+      bookType,
+      isbn,
+      bookCategory,
+    ];
 
     const result = await client.query(query, values);
 
@@ -31,6 +52,25 @@ async function getBookDetails() {
   const client = await getClient();
   try {
     const query = `SELECT * from booksTable`;
+    const results = await client.query(query);
+    return results.rows;
+  } catch (err) {
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function getBookDetailsByName() {
+  const client = await getClient();
+  try {
+    const query = `SELECT id, bookname, author, photolink, isbn, status, bookcategory
+FROM (
+    SELECT id, bookname, author, photolink, isbn, status, bookcategory,
+           ROW_NUMBER() OVER (PARTITION BY bookname ORDER BY id) AS row_num
+    FROM bookstable
+) AS ranked
+WHERE row_num = 1;`;
     const results = await client.query(query);
     return results.rows;
   } catch (err) {
@@ -58,7 +98,15 @@ async function updateBookByCode(
         RETURNING *;
     `;
 
-  const values = [bookName, author, rackNo, photolink, bookCode, bookType, isbn];
+  const values = [
+    bookName,
+    author,
+    rackNo,
+    photolink,
+    bookCode,
+    bookType,
+    isbn,
+  ];
 
   try {
     const res = await client.query(query, values);
@@ -71,19 +119,18 @@ async function updateBookByCode(
   }
 }
 
-
 async function deleteBook(bookcode) {
   const client = await getClient();
-  const query = `DELETE FROM booksTable WHERE bookCode = $1`; 
+  const query = `DELETE FROM booksTable WHERE bookCode = $1`;
   try {
     const res = await client.query(query, [bookcode]);
-    return res.rowCount; 
+    return res.rowCount;
   } catch (error) {
     console.error("Error deleting book:", error);
-    throw error; 
+    throw error;
   } finally {
     client.release();
   }
 }
 
-module.exports = { createBook, getBookDetails, updateBookByCode, deleteBook };
+module.exports = { createBook, getBookDetails, getBookDetailsByName, updateBookByCode, deleteBook };
