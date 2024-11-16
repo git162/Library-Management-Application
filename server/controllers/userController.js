@@ -1,4 +1,4 @@
-const { createUser, createLoan, deleteLoan } = require("../models/userModels");
+const { createUser,checkUser, createLoan, deleteLoan } = require("../models/userModels");
 const userAuth = require("../auth/userAuth");
 
 async function handleUserSignUp(req, res) {
@@ -13,6 +13,32 @@ async function handleUserSignUp(req, res) {
       msg: "Some error occurred!!",
       err,
     });
+  }
+}
+
+async function handleSignIn(req, res){
+  const {email, password} = req.body;
+  const result = await checkUser(req.body);
+  try{
+    if(result.rows[0].email === email && result.rows[0].userpassword === password){
+      res.status(200).json({
+        msg:"User found Signed In",
+        data:{
+          username: result.rows[0].username,
+          email:result.rows[0].email
+        }
+      })
+    }else{
+      res.status(500).json({
+        msg:"Invalid email or password"
+      })
+    }
+  }catch(err){
+    res.status(501).json({
+      msg:"Something unusual occured " + err.message
+    })
+    throw err.message;
+    
   }
 }
 
@@ -55,4 +81,4 @@ async function handleReturn(req, res) {
   }
 }
 
-module.exports = { handleUserSignUp, handleLoan, handleReturn };
+module.exports = { handleUserSignUp,handleSignIn, handleLoan, handleReturn };

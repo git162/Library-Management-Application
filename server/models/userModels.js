@@ -14,6 +14,19 @@ async function createUser({ username, email, password }) {
   }
 }
 
+async function checkUser({email,password}){
+  const client = await getClient();
+  try{
+    const query = `SELECT username,email,userpassword FROM usersTable where email = $1`;
+    const result = await client.query(query,[email]);
+    return result;
+  }catch(err){
+    throw err;
+  }finally{
+    client.release();
+  }
+}
+
 async function findUserByEmail(email) {
   const client = await getClient();
   try {
@@ -98,4 +111,4 @@ async function deleteLoan(bookCode) {
   }
 }
 
-module.exports = { createUser, findUserByEmail, createLoan, deleteLoan };
+module.exports = { createUser, checkUser,findUserByEmail, createLoan, deleteLoan };
