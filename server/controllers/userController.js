@@ -7,7 +7,10 @@ async function handleUserSignUp(req, res) {
     res.status(200).json({
       msg: "User Created Successfully",
       user: result,
+      token: req.token,
     });
+    // res.redirect("/books");
+
   } catch (err) {
     res.status(500).json({
       msg: "Some error occurred!!",
@@ -26,7 +29,8 @@ async function handleSignIn(req, res){
         data:{
           username: result.rows[0].username,
           email:result.rows[0].email
-        }
+        },
+        token:req.token,
       })
     }else{
       res.status(500).json({
@@ -44,7 +48,7 @@ async function handleSignIn(req, res){
 
 async function handleLoan(req, res) {
   const bookcode = req.params.bookcode;
-  const email = req.query.email;
+  const email = req.body.email;
 
   try {
     const loanResult = await createLoan(bookcode, email);

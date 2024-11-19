@@ -6,7 +6,7 @@ async function createUser({ username, email, password }) {
     const query = `INSERT INTO usersTable(username,email,userpassword) VALUES($1,$2,$3) RETURNING id`;
     const values = [username, email, password];
     const result = await client.query(query, values);
-    return result.rows;
+    return result.rows[0];
   } catch (err) {
     throw err;
   } finally {

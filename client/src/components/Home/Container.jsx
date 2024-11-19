@@ -1,9 +1,11 @@
 import React, { useState,useEffect } from 'react';
 import Card from './Card';
 import { useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const Container = ({type}) => {
-    console.log(type);
+
+    const navigate = useNavigate();
     const [bookData, setBookData] = useState([]);
 
     const { bookType } = type === "description" ? useParams() : {};
@@ -11,22 +13,42 @@ const Container = ({type}) => {
 
     useEffect(() => {
       const fetchData = async () => {
-          try {
-              const response = await fetch(
-                  type === "display"
-                  ? "http://localhost:5000/user/booksbyname"
-                  : "http://localhost:5000/user/booksbytype/" + bookType
-              );
-              const jsonData = await response.json();
-              setBookData(jsonData);
-              console.log(jsonData);
-          } catch (error) {
-              console.error("Error fetching data:", error);
+        const token = localStorage.getItem("authToken");
+  
+        if (!token) {
+          console.error("No token found. Please log in.");
+          navigate("/signin");
+          return;
+        }
+  
+        try {
+          const response = await fetch(
+            type === "display"
+              ? "http://localhost:5000/user/booksbyname"
+              : "http://localhost:5000/user/booksbytype/" + bookType,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+              },
+            }
+          );
+  
+          if (response.ok) {
+            const jsonData = await response.json();
+            setBookData(jsonData);
+            console.log(jsonData);
+          } else {
+            console.error("Error fetching data:", await response.json());
           }
+        } catch (error) {
+          console.error("Error fetching data:", error);
+        }
       };
   
       fetchData();
-  }, [type,bookType]);
+    }, [type, bookType]); 
   
     
 

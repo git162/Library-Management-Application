@@ -5,10 +5,18 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import Carousel from "react-bootstrap/Carousel";
 import { toast, ToastContainer } from 'react-toastify';
 import "react-toastify/dist/ReactToastify.css";
+import { Link,useNavigate } from "react-router-dom";
+import { z } from 'zod';
 
+const signupSchema = z.object({
+  username: z.string().min(3, { message: "Username must be at least 3 characters long" }),
+  email: z.string().email({ message: "Invalid email address" }),
+  password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
+  user: z.enum(["admin", "librarian", "user"], { message: "Please select a valid user type" }),
+});
 
-
-const Signup = () => {
+const SignUp = () => {
+  const navigate = useNavigate();
   const img1 =
     "https://images.unsplash.com/photo-1522407183863-c0bf2256188c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   const img2 =
@@ -26,14 +34,19 @@ const Signup = () => {
     }
   }
   const handleSignup = async () => {
-    const url = "http://localhost:5000/user/signup";
     const data = {
       username: username,
       email: email,
       password: password,
+      user: user,  
     };
-    setIsLoading(true);
+  
+
     try {
+      signupSchema.parse(data);  
+      setIsLoading(true);
+  
+      const url = "http://localhost:5000/user/signup";
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -41,23 +54,34 @@ const Signup = () => {
         },
         body: JSON.stringify(data),
       });
+  
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
+  
       const result = await response.json();
       console.log("Success:", result);
+      localStorage.setItem('authToken', result.token);
+      localStorage.setItem('email', email);
+      localStorage.setItem("isAuthenticated", "true");
       toast.success("Signed Up !!!", {
         position: "top-center"
       });
+  
+      // navigate("/books");
     } catch (error) {
-      console.error("Unable to Sign Up!!!", error);
-      toast.error("Unable to Sign Up!!!", {
-        position: "top-center"
-      });
+      if (error instanceof z.ZodError) {
+        error.errors.forEach((err) => {
+          toast.error(err.message, { position: "top-center" });
+        });
+      } else {
+        toast.error("Unable to Sign Up!!!", { position: "top-center" });
+      }
     } finally {
-      setIsLoading(false); // Reset loading state
+      setIsLoading(false);
     }
   };
+  
   return (
     <>
       <ToastContainer />
@@ -118,10 +142,11 @@ const Signup = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button className="w-[80%] bg-slate-950 text-white h-[7%] rounded-md font-semibold "
+          <button className="w-[80%] bg-slate-950 text-white h-[7%] rounded-md font-semibold font-robotoCondensed "
           onClick={checkUserTypeAndProceed}>
             {isLoading?"Loading...":"Sign Up"}
           </button>
+          <h4 className="font-robotoCondensed text-xl">Already have an account? <Link className="no-underline text-orange-400" to={"/signin"}>Sign In</Link></h4>
         </div>
         <div className="image-area bg-slate-200 w-[40vw] h-[60vh] rounded-md self-center">
           <div className="carousel-wrapper isolate">
@@ -174,4 +199,4 @@ const Signup = () => {
   );
 };
 
-export default Signup;
+export default SignUp;
