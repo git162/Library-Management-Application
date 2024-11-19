@@ -80,12 +80,40 @@ WHERE row_num = 1;`;
   }
 }
 
-async function getBookDetailsByType(type){
+async function getBookDetailsByType(type) {
   const client = await getClient();
   try {
     const query = `SELECT * from booksTable WHERE booktype = $1`;
-    const results = await client.query(query,[type]);
+    const results = await client.query(query, [type]);
     return results.rows;
+  } catch (err) {
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
+async function getBorrowedBookDetails() {
+  const client = await getClient();
+  try {
+    const query = `
+            SELECT
+                b.id AS bookid,
+                b.bookName,
+                b.isbn,
+                b.photolink,
+                b.bookCode,
+                b.bookcategory,
+                b.author,
+                b.rackNo,
+                l.borrowDate
+            FROM
+                booksTable b
+            JOIN
+                Loans l ON b.id = l.bookId;
+        `;
+    const result = await client.query(query);
+    return result.rows;
   } catch (err) {
     throw err;
   } finally {
@@ -146,4 +174,12 @@ async function deleteBook(bookcode) {
   }
 }
 
-module.exports = { createBook, getBookDetails, getBookDetailsByName, getBookDetailsByType, updateBookByCode, deleteBook };
+module.exports = {
+  createBook,
+  getBookDetails,
+  getBookDetailsByName,
+  getBookDetailsByType,
+  getBorrowedBookDetails,
+  updateBookByCode,
+  deleteBook,
+};

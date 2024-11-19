@@ -49,7 +49,7 @@ async function handleSignIn(req, res){
 async function handleLoan(req, res) {
   const bookcode = req.params.bookcode;
   const email = req.body.email;
-
+  console.log("Inside loan");
   try {
     const loanResult = await createLoan(bookcode, email);
 

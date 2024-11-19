@@ -63,7 +63,13 @@ async function createLoan(bookCode, email) {
     }
     const bookId = bookResult.rows[0].id;
 
-    const currentDate = new Date().toISOString().slice(0, 10);
+    const currentDate = new Intl.DateTimeFormat('en-IN', {
+      timeZone: 'Asia/Kolkata', 
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+  }).format(new Date());
+
     const loanQuery = `INSERT INTO Loans (userId, bookId, borrowDate) VALUES ($1, $2, $3) RETURNING id`;
     const loanValues = [userId, bookId, currentDate];
     const loanResult = await client.query(loanQuery, loanValues);

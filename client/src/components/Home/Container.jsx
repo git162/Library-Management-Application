@@ -69,6 +69,7 @@ const Container = ({type}) => {
               booktype={elem.booktype}
               pageType = {type}
               status = {elem.status}
+              bookcode = {elem.bookcode}
             />
           ))
         }

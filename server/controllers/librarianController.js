@@ -4,7 +4,8 @@ const {
   deleteBook,
   updateBookByCode,
   getBookDetailsByName,
-  getBookDetailsByType
+  getBookDetailsByType,
+  getBorrowedBookDetails
 } = require("../models/librarianModels");
 
 async function handleNewBook(req, res) {
@@ -39,6 +40,18 @@ async function getBooksByName(req,res){
     const result = await getBookDetailsByName();
     res.status(200).json(result);
   } catch (err) {
+    res.status(500).json({
+      msg: "An error occured ",
+      err,
+    });
+  }
+}
+
+async function getBorrowedBooks(req,res){
+  try{
+    const result = await getBorrowedBookDetails();
+    res.status(200).json(result);
+  }catch(err){
     res.status(500).json({
       msg: "An error occured ",
       err,
@@ -93,4 +106,4 @@ async function removeBook(req, res) {
   }
 }
 
-module.exports = { handleNewBook, getAllBooks,getBooksByName, getBooksByType, updateBook, removeBook };
+module.exports = { handleNewBook, getAllBooks,getBooksByName, getBooksByType, getBorrowedBooks, updateBook, removeBook };

@@ -37,7 +37,7 @@ const Header = () => {
             </Link>
           </li>
           <li className="hover:text-red-400">
-            <Link to="#" className="no-underline text-inherit">
+            <Link to="/account" className="no-underline text-inherit">
               Account
             </Link>
           </li>

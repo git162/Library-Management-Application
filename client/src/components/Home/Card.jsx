@@ -10,7 +10,52 @@ const Card = ({
   pageType,
   booktype,
   status,
+  bookcode,
 }) => {
+  // Function to issue a book
+  const issueBook = async (bookCode) => {
+    const email = localStorage.getItem("email"); // Retrieve email from localStorage
+    const token = localStorage.getItem("authToken"); // Retrieve token from localStorage
+    
+
+    if (!email) {
+      alert("Please log in to issue a book.");
+      return;
+    }
+
+    if (!token) {
+      console.error("No token found. Please log in.");
+      navigate("/signin");
+      return;
+    }
+
+    try {
+      console.log("Attempting to issue book with bookCode:", bookCode);
+
+      const response = await fetch(`http://localhost:5000/user/loan/${bookCode}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`, // Include token in the headers
+        },
+        body: JSON.stringify({ email:email }), // Pass email in the body
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        console.log("Book issued successfully:", data);
+        alert("Book issued successfully!");
+      } else {
+        const errorData = await response.json();
+        console.error("Failed to issue the book:", errorData);
+        alert("Failed to issue the book.");
+      }
+    } catch (error) {
+      console.error("Error issuing book:", error);
+      alert("Error issuing the book. Please try again.");
+    }
+  };
+
   return (
     <div>
       <div
@@ -64,14 +109,18 @@ const Card = ({
             </Link>
           </button>
         ) : (
-          <button className={`ml-4 text-white px-3 py-1 font-robotoCondensed rounded-sm ${
-            status === "available" ? "bg-green-500" : "bg-red-500"
-          }`}>
-            <Link
-              className="no-underline text-inherit"
-            >
-              Issue
-            </Link>
+          <button
+            className={`ml-4 text-white px-3 py-1 font-robotoCondensed rounded-sm ${
+              status === "available" ? "bg-green-500" : "bg-red-500"
+            }`}
+            onClick={() => issueBook(bookcode)} // Call the issueBook function on click
+            disabled={status !== "available"} // Disable button if the book is not available
+          >
+            {status === "available" ? (
+              <Link className="no-underline text-inherit">Issue</Link>
+            ) : (
+              "unavailable"
+            )}
           </button>
         )}
       </div>

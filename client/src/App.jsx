@@ -3,7 +3,7 @@ import ReactDOM from "react-dom/client";
 import Header from "./components/Home/Header";
 import SignUp from "./components/Auth/SignUp";
 import SignIn from "./components/Auth/SignIn";
-import Card from "./components/Home/Card";
+import Account from "./components/Home/Account";
 import Container from "./components/Home/Container";
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
 export default function App() {
@@ -25,6 +25,7 @@ const appRouter = createBrowserRouter([
       {path:"/books",element:<Container type={"display"}/>},
       {path:"/signup",element:<SignUp/>},
       {path:"/signin",element:<SignIn/>},
+      {path:"/account",element:<Account/>},
       {
         path:"/books/:bookType",
         element: <Container type={"description"}/>,
