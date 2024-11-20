@@ -93,7 +93,7 @@ async function getBookDetailsByType(type) {
   }
 }
 
-async function getBorrowedBookDetails() {
+async function getBorrowedBookDetails(email) {
   const client = await getClient();
   try {
     const query = `
@@ -110,9 +110,13 @@ async function getBorrowedBookDetails() {
             FROM
                 booksTable b
             JOIN
-                Loans l ON b.id = l.bookId;
+                Loans l ON b.id = l.bookId
+            JOIN
+                usersTable u ON l.userId = u.id
+            WHERE
+                u.email = $1;
         `;
-    const result = await client.query(query);
+    const result = await client.query(query, [email]);
     return result.rows;
   } catch (err) {
     throw err;
@@ -120,6 +124,7 @@ async function getBorrowedBookDetails() {
     client.release();
   }
 }
+
 
 async function updateBookByCode(
   bookCode,

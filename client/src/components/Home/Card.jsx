@@ -1,5 +1,7 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { toast, ToastContainer } from 'react-toastify';
+import "react-toastify/dist/ReactToastify.css";
 
 const Card = ({
   photolink,
@@ -11,11 +13,12 @@ const Card = ({
   booktype,
   status,
   bookcode,
+  refetchData
 }) => {
-  // Function to issue a book
+
   const issueBook = async (bookCode) => {
-    const email = localStorage.getItem("email"); // Retrieve email from localStorage
-    const token = localStorage.getItem("authToken"); // Retrieve token from localStorage
+    const email = localStorage.getItem("email"); 
+    const token = localStorage.getItem("authToken");
     
 
     if (!email) {
@@ -36,23 +39,30 @@ const Card = ({
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, // Include token in the headers
+          Authorization: `Bearer ${token}`, 
         },
-        body: JSON.stringify({ email:email }), // Pass email in the body
+        body: JSON.stringify({ email:email }), 
       });
 
       if (response.ok) {
         const data = await response.json();
+        refetchData();
         console.log("Book issued successfully:", data);
-        alert("Book issued successfully!");
+        toast.success("Book issued successfully", {
+          position: "top-center"
+        });
       } else {
         const errorData = await response.json();
         console.error("Failed to issue the book:", errorData);
-        alert("Failed to issue the book.");
+        toast.error("Failed to issue the book", {
+          position: "top-center"
+        });
       }
     } catch (error) {
       console.error("Error issuing book:", error);
-      alert("Error issuing the book. Please try again.");
+      toast.error("Error issuing the book. Please try again", {
+        position: "top-center"
+      });
     }
   };
 
@@ -113,13 +123,13 @@ const Card = ({
             className={`ml-4 text-white px-3 py-1 font-robotoCondensed rounded-sm ${
               status === "available" ? "bg-green-500" : "bg-red-500"
             }`}
-            onClick={() => issueBook(bookcode)} // Call the issueBook function on click
-            disabled={status !== "available"} // Disable button if the book is not available
+            onClick={() =>{ issueBook(bookcode);}} 
+            disabled={status !== "available"} 
           >
             {status === "available" ? (
               <Link className="no-underline text-inherit">Issue</Link>
             ) : (
-              "unavailable"
+              "Issued"
             )}
           </button>
         )}

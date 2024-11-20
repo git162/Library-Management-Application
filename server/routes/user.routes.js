@@ -12,7 +12,7 @@ router.post('/signin',generateAccessToken,handleSignIn);
 router.get('/books',verifyToken, getAllBooks);
 router.get('/booksbyname',verifyToken, getBooksByName);
 router.get('/booksbytype/:booktype', verifyToken, getBooksByType);
-router.get('/borrowedbooks',verifyToken, getBorrowedBooks);
+router.post('/borrowedbooks',verifyToken, getBorrowedBooks);
 router.post('/loan/:bookcode',verifyToken, handleLoan);
 router.delete('/return/:bookcode',verifyToken, handleReturn);
 

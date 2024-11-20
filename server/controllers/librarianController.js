@@ -49,7 +49,8 @@ async function getBooksByName(req,res){
 
 async function getBorrowedBooks(req,res){
   try{
-    const result = await getBorrowedBookDetails();
+    const email = req.body.email;
+    const result = await getBorrowedBookDetails(email);
     res.status(200).json(result);
   }catch(err){
     res.status(500).json({

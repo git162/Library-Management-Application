@@ -1,4 +1,5 @@
 const { getClient } = require("../db/connectDb");
+const  { format }= require('date-fns');
 
 async function createUser({ username, email, password }) {
   const client = await getClient();
@@ -63,12 +64,8 @@ async function createLoan(bookCode, email) {
     }
     const bookId = bookResult.rows[0].id;
 
-    const currentDate = new Intl.DateTimeFormat('en-IN', {
-      timeZone: 'Asia/Kolkata', 
-      year: 'numeric',
-      month: '2-digit',
-      day: '2-digit'
-  }).format(new Date());
+    const currentDate = format(new Date(), 'yyyy-MM-dd');
+    console.log(currentDate);
 
     const loanQuery = `INSERT INTO Loans (userId, bookId, borrowDate) VALUES ($1, $2, $3) RETURNING id`;
     const loanValues = [userId, bookId, currentDate];
