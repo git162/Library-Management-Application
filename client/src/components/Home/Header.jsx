@@ -4,23 +4,29 @@ import { Link } from "react-router-dom";
 const Header = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [email, setEmail] = useState("");
-  function clearLocalStorage(){
-    localStorage.removeItem("isAuthenticated");
-    localStorage.removeItem("email");
-    localStorage.removeItem("authToken");
-    alert("Logged Out");
-  }
-  useEffect(() => {
-    const authStatus = localStorage.getItem("isAuthenticated") === "true";
-    const emailLocal = localStorage.getItem("email");
-    setIsAuthenticated(authStatus);
-    setEmail(emailLocal || "");
-  }, [email]);
+  const [userType, setUserType] = useState(3);
 
   const handleAuthChange = () => {
     setIsAuthenticated(localStorage.getItem("isAuthenticated") === "true");
     setEmail(localStorage.getItem("email") || "");
+    setUserType(parseInt(localStorage.getItem("usertype") || 3, 10)); // Default to 3 if not set
   };
+console.log(userType);
+const storedUserType = localStorage.getItem("usertype");
+console.log(storedUserType);
+  const clearLocalStorage = () => {
+    localStorage.removeItem("isAuthenticated");
+    localStorage.removeItem("email");
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("usertype"); // Clear usertype on logout
+    alert("Logged Out");
+    window.location.reload();
+    handleAuthChange(); // Update the state after logout
+  };
+
+  useEffect(() => {
+    handleAuthChange(); // Initialize auth and usertype state
+  }, []);
 
   return (
     <div className="fixed top-0 left-0 w-full bg-white shadow-md z-10">
@@ -41,10 +47,20 @@ const Header = () => {
               Account
             </Link>
           </li>
+          {userType === 1 && (
+            <li className="hover:text-red-400">
+              <Link to="/dashboard" className="no-underline text-inherit">
+                Dashboard
+              </Link>
+            </li>
+          )}
+
           <li>
             {isAuthenticated ? (
-              <button className="bg-black text-white rounded-md px-4 py-2 hover:bg-red-500"
-              onClick={clearLocalStorage}>
+              <button
+                className="bg-black text-white rounded-md px-4 py-2 hover:bg-red-500"
+                onClick={clearLocalStorage}
+              >
                 <Link to="#" className="no-underline text-inherit">
                   {email}
                 </Link>
@@ -66,5 +82,6 @@ const Header = () => {
     </div>
   );
 };
+
 
 export default Header;

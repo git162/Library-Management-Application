@@ -1,10 +1,13 @@
 const { Router } = require("express");
 const router = Router();
-const { handleNewBook, getAllBooks, removeBook, updateBook } = require("../controllers/librarianController"); // Ensure this path is correct
+const { handleNewAcc, handleSignIn, handleNewBook, getAllBooks, removeBook, updateBook } = require("../controllers/librarianController");
+const {checkUniqueUser, generateAccessToken, verifyToken} = require("../middlewares/librarianMiddlewares")
 
-router.post('/create', handleNewBook);
-router.get('/books',getAllBooks);
-router.put('/update/:bookcode',updateBook);
-router.delete('/remove/:bookcode', removeBook);
+router.post('/signup',checkUniqueUser,generateAccessToken,handleNewAcc);
+router.post('/signin',generateAccessToken,handleSignIn)
+router.post('/create',verifyToken,handleNewBook);
+router.get('/books',verifyToken,getAllBooks);
+router.put('/update/:bookcode',verifyToken,updateBook);
+router.delete('/remove/:bookcode',verifyToken,removeBook);
 
 module.exports = router;

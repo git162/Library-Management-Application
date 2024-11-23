@@ -3,20 +3,28 @@ import { BsGoogle } from "react-icons/bs";
 import { MdPhoneIphone } from "react-icons/md";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Carousel from "react-bootstrap/Carousel";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
-import { Link,useNavigate } from "react-router-dom";
-import { z } from 'zod';
+import { Link, useNavigate } from "react-router-dom";
+import { z } from "zod";
+
 
 const signupSchema = z.object({
-  username: z.string().min(3, { message: "Username must be at least 3 characters long" }),
+  username: z
+    .string()
+    .min(3, { message: "Username must be at least 3 characters long" }),
   email: z.string().email({ message: "Invalid email address" }),
-  password: z.string().min(6, { message: "Password must be at least 6 characters long" }),
-  user: z.enum(["admin", "librarian", "user"], { message: "Please select a valid user type" }),
+  password: z
+    .string()
+    .min(6, { message: "Password must be at least 6 characters long" }),
+  user: z.enum(["librarian", "user"], {
+    message: "Please select a valid user type",
+  }),
 });
 
 const SignUp = () => {
   const navigate = useNavigate();
+  // const { updateAuthState } = useAuth();
   const img1 =
     "https://images.unsplash.com/photo-1522407183863-c0bf2256188c?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D";
   const img2 =
@@ -27,26 +35,27 @@ const SignUp = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [user, setUser] = useState("");
-  const [isLoading, setIsLoading] = useState(false); 
-  function checkUserTypeAndProceed(){
-    if(user ==="user"){
-      handleSignup();
-    }
+  const [isLoading, setIsLoading] = useState(false);
+  function checkUserTypeAndProceed() {
+    handleSignup();
   }
   const handleSignup = async () => {
     const data = {
       username: username,
       email: email,
       password: password,
-      user: user,  
+      user: user,
     };
-  
 
     try {
-      signupSchema.parse(data);  
+      signupSchema.parse(data);
       setIsLoading(true);
-  
-      const url = "http://localhost:5000/user/signup";
+
+      const url =
+        user === "user"
+          ? "http://localhost:5000/user/signup"
+          : "http://localhost:5000/librarian/signup";
+
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -54,21 +63,25 @@ const SignUp = () => {
         },
         body: JSON.stringify(data),
       });
-  
+
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
-  
+
       const result = await response.json();
+      console.log(result);
       console.log("Success:", result);
-      localStorage.setItem('authToken', result.token);
-      localStorage.setItem('email', email);
+      localStorage.setItem("authToken", result.token);
+      localStorage.setItem("email", email);
       localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("usertype", result.data.usertype); // Store usertype in localStorage
+      // updateAuthState();
       toast.success("Signed Up !!!", {
-        position: "top-center"
+        position: "top-center",
       });
-  
-      // navigate("/books");
+      navigate("/books");
+      window.location.reload();
+
     } catch (error) {
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
@@ -81,7 +94,7 @@ const SignUp = () => {
       setIsLoading(false);
     }
   };
-  
+
   return (
     <>
       <ToastContainer />
@@ -112,12 +125,13 @@ const SignUp = () => {
             value={user}
             onChange={(e) => setUser(e.target.value)}
           >
-            <option value="admin" className="hover:bg-slate-950">
-              Admin
+            <option value="" disabled>
+              Select user type
             </option>
             <option value="librarian">Librarian</option>
             <option value="user">User</option>
           </select>
+
           {/* <input type="submit"/> */}
 
           <input
@@ -142,11 +156,18 @@ const SignUp = () => {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
           />
-          <button className="w-[80%] bg-slate-950 text-white h-[7%] rounded-md font-semibold font-robotoCondensed "
-          onClick={checkUserTypeAndProceed}>
-            {isLoading?"Loading...":"Sign Up"}
+          <button
+            className="w-[80%] bg-slate-950 text-white h-[7%] rounded-md font-semibold font-robotoCondensed "
+            onClick={checkUserTypeAndProceed}
+          >
+            {isLoading ? "Loading..." : "Sign Up"}
           </button>
-          <h4 className="font-robotoCondensed text-xl">Already have an account? <Link className="no-underline text-orange-400" to={"/signin"}>Sign In</Link></h4>
+          <h4 className="font-robotoCondensed text-xl">
+            Already have an account?{" "}
+            <Link className="no-underline text-orange-400" to={"/signin"}>
+              Sign In
+            </Link>
+          </h4>
         </div>
         <div className="image-area bg-slate-200 w-[40vw] h-[60vh] rounded-md self-center">
           <div className="carousel-wrapper isolate">
@@ -159,9 +180,6 @@ const SignUp = () => {
                 />
                 <Carousel.Caption>
                   <h3>All Books in One Place</h3>
-                  {/* <p>
-                    Nulla vitae elit libero, a pharetra augue mollis interdum.
-                  </p> */}
                 </Carousel.Caption>
               </Carousel.Item>
               <Carousel.Item interval={500}>
@@ -172,9 +190,6 @@ const SignUp = () => {
                 />
                 <Carousel.Caption>
                   <h3>Science Technology Mathematics</h3>
-                  {/* <p>
-                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                  </p> */}
                 </Carousel.Caption>
               </Carousel.Item>
               <Carousel.Item>
@@ -185,10 +200,6 @@ const SignUp = () => {
                 />
                 <Carousel.Caption>
                   <h3>Novels, Fiction, Biography</h3>
-                  {/* <p>
-                    Praesent commodo cursus magna, vel scelerisque nisl
-                    consectetur.
-                  </p> */}
                 </Carousel.Caption>
               </Carousel.Item>
             </Carousel>

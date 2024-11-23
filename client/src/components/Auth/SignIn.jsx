@@ -27,9 +27,7 @@ const SignIn = () => {
   const [user, setUser] = useState("");
   const [isLoading, setIsLoading] = useState(false); 
   function checkUserTypeAndProceed(){
-    if(user ==="user"){
       handleSignIn();
-    }
   }
   const handleSignIn = async () => {
     const data = {
@@ -43,7 +41,10 @@ const SignIn = () => {
       signupSchema.parse(data);  
       setIsLoading(true);
   
-      const url = "http://localhost:5000/user/signin";
+      const url =
+        user === "user"
+          ? "http://localhost:5000/user/signin"
+          : "http://localhost:5000/librarian/signin";
       const response = await fetch(url, {
         method: "POST",
         headers: {
@@ -58,14 +59,15 @@ const SignIn = () => {
   
       const result = await response.json();
       console.log("Success:", result);
-      localStorage.setItem('authToken', result.token);
-      localStorage.setItem('email', email);
+      localStorage.setItem("authToken", result.token);
+      localStorage.setItem("email", email);
       localStorage.setItem("isAuthenticated", "true");
+      localStorage.setItem("usertype", result.data.usertype);
       toast.success("Signed In !!!", {
         position: "top-center"
       });
-  
       navigate("/books");
+      window.location.reload();
     } catch (error) {
       if (error instanceof z.ZodError) {
         error.errors.forEach((err) => {
@@ -109,8 +111,8 @@ const SignIn = () => {
             value={user}
             onChange={(e) => setUser(e.target.value)}
           >
-            <option value="admin" className="hover:bg-slate-950">
-              Admin
+            <option value="" disabled>
+              Select user type
             </option>
             <option value="librarian">Librarian</option>
             <option value="user">User</option>

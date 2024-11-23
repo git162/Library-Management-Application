@@ -1,5 +1,33 @@
 const { getClient } = require("../db/connectDb");
 
+
+async function createLibrarian({ username, email, password }) {
+  const client = await getClient();
+try {
+  const query = `INSERT INTO librarians(name,email,librarianpassword) VALUES($1,$2,$3) RETURNING id`;
+  const values = [username, email, password];
+  const result = await client.query(query, values);
+  return result.rows;
+} catch (err) {
+  throw err;
+} finally {
+  client.release();
+}
+}
+
+async function checkLibrarianAccount(email){
+  const client = await getClient();
+  try{
+    const query = `SELECT name,email,librarianpassword FROM librarians where email = $1`;
+    const result = await client.query(query,[email]);
+    return result;
+  }catch(err){
+    throw err;
+  }finally{
+    client.release();
+  }
+}
+
 async function createBook({
   bookName,
   bookCode,
@@ -180,6 +208,8 @@ async function deleteBook(bookcode) {
 }
 
 module.exports = {
+  createLibrarian,
+  checkLibrarianAccount,
   createBook,
   getBookDetails,
   getBookDetailsByName,

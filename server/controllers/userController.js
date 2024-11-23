@@ -7,10 +7,10 @@ async function handleUserSignUp(req, res) {
     res.status(200).json({
       msg: "User Created Successfully",
       user: result,
+      usetype: 0,
       token: req.token,
     });
-    // res.redirect("/books");
-
+    
   } catch (err) {
     res.status(500).json({
       msg: "Some error occurred!!",
@@ -28,7 +28,8 @@ async function handleSignIn(req, res){
         msg:"User found Signed In",
         data:{
           username: result.rows[0].username,
-          email:result.rows[0].email
+          email:result.rows[0].email,
+          usertype:0
         },
         token:req.token,
       })

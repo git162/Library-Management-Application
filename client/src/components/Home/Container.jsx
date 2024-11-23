@@ -1,5 +1,6 @@
 import React, { useState,useEffect } from 'react';
 import Card from './Card';
+import Header from './Header';
 import { useParams } from 'react-router-dom';
 import { useNavigate } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';

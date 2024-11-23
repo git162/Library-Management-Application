@@ -5,7 +5,9 @@ import SignUp from "./components/Auth/SignUp";
 import SignIn from "./components/Auth/SignIn";
 import Account from "./components/Home/Account";
 import Container from "./components/Home/Container";
+import Dashboard from "./components/Home/Dashboard"
 import { createBrowserRouter, RouterProvider, Outlet } from "react-router-dom";
+
 export default function App() {
   return (
     <>
@@ -26,6 +28,7 @@ const appRouter = createBrowserRouter([
       {path:"/signup",element:<SignUp/>},
       {path:"/signin",element:<SignIn/>},
       {path:"/account",element:<Account/>},
+      {path:"/dashboard",element:<Dashboard/>},
       {
         path:"/books/:bookType",
         element: <Container type={"description"}/>,
