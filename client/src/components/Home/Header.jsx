@@ -11,9 +11,6 @@ const Header = () => {
     setEmail(localStorage.getItem("email") || "");
     setUserType(parseInt(localStorage.getItem("usertype") || 3, 10)); // Default to 3 if not set
   };
-console.log(userType);
-const storedUserType = localStorage.getItem("usertype");
-console.log(storedUserType);
   const clearLocalStorage = () => {
     localStorage.removeItem("isAuthenticated");
     localStorage.removeItem("email");
