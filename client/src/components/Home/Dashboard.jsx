@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import DashTab from "./DashTab";
 import {
   CButton,
@@ -10,25 +10,23 @@ import {
 import { z } from "zod";
 import { toast, ToastContainer } from "react-toastify";
 
-const TextInput = ({ placeholder, value, onChange }) => {
-  return (
-    <input
-      type="text"
-      placeholder={placeholder}
-      className="w-[100%] h-8 rounded-md px-10 border-slate-700 placeholder-black border-2"
-      value={value}
-      onChange={onChange}
-    />
-  );
-};
+const TextInput = ({ placeholder, value, onChange }) => (
+  <input
+    type="text"
+    placeholder={placeholder}
+    className="w-[100%] h-8 rounded-md px-10 border-slate-700 placeholder-black border-2"
+    value={value}
+    onChange={onChange}
+  />
+);
 
 const Dashboard = () => {
   const [visible, setVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({});
   const [bookData, setBookData] = useState([]);
+  const [isEditMode, setIsEditMode] = useState(false);
 
-  // Zod schema for validation
   const schema = z.object({
     bookName: z.string().min(1, { message: "Book Name is required" }),
     bookCode: z.string().min(7, { message: "Book Code is required" }), // Ensure this is needed to be 7 characters
@@ -53,10 +51,6 @@ const Dashboard = () => {
     { id: "bookCategory", placeholder: "Enter Book Category" },
   ];
 
-  const handleInputChange = (id, value) => {
-    setFormData((prev) => ({ ...prev, [id]: value }));
-  };
-
   const fetchData = async () => {
     const token = localStorage.getItem("authToken");
 
@@ -67,17 +61,13 @@ const Dashboard = () => {
     }
 
     try {
-      const response = await fetch(
-        "http://localhost:5000/librarian/books",
-
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch("http://localhost:5000/librarian/books", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response.ok) {
         const jsonData = await response.json();
@@ -94,6 +84,26 @@ const Dashboard = () => {
     fetchData();
   }, []);
 
+  const handleInputChange = (id, value) => {
+    setFormData((prev) => ({ ...prev, [id]: value }));
+  };
+
+  const handleUpdate = (book) => {
+    const updateData = {
+        bookName: book.bookname,
+        bookCode:book.bookcode,
+        author:book.author,
+        rackNo:book.rackno,
+        photoLink:book.photolink,
+        bookType:book.booktype,
+        isbn:book.isbn,
+        bookCategory:book.bookcategory
+    }
+    setFormData(updateData); // Populate formData with book data
+    setIsEditMode(true);
+    setVisible(true);
+  };
+
   const handlePost = async () => {
     const data = formData;
     const token = localStorage.getItem("authToken");
@@ -106,9 +116,13 @@ const Dashboard = () => {
 
     try {
       setIsLoading(true);
-      const url = "http://localhost:5000/librarian/create";
+      const url = isEditMode
+        ? `http://localhost:5000/librarian/update/${formData.bookCode}` // Update endpoint
+        : "http://localhost:5000/librarian/create"; // Create endpoint
+      const method = isEditMode ? "PUT" : "POST";
+
       const response = await fetch(url, {
-        method: "POST",
+        method,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
@@ -121,20 +135,17 @@ const Dashboard = () => {
       }
 
       const result = await response.json();
-      console.log(result);
-      console.log("Success:", result);
+      toast.success(
+        isEditMode
+          ? "Book updated successfully!"
+          : "Book posted successfully!",
+        { position: "top-center" }
+      );
 
-      toast.success("Book posted successfully!", {
-        position: "top-center",
-      });
+      fetchData(); // Refresh the data
+      setVisible(false);
     } catch (error) {
-      if (error instanceof z.ZodError) {
-        error.errors.forEach((err) => {
-          toast.error(err.message, { position: "top-center" });
-        });
-      } else {
-        toast.error("Unable to post book!", { position: "top-center" });
-      }
+      toast.error("Unable to save book!", { position: "top-center" });
     } finally {
       setIsLoading(false);
     }
@@ -145,7 +156,11 @@ const Dashboard = () => {
       <ToastContainer />
       <button
         className="py-2 px-2 bg-blue-600 rounded-md text-white"
-        onClick={() => setVisible(!visible)}
+        onClick={() => {
+          setIsEditMode(false); // Switch to Create Mode
+          setFormData({}); // Clear the form
+          setVisible(true);
+        }}
       >
         Post a Book
       </button>
@@ -158,9 +173,9 @@ const Dashboard = () => {
       >
         <CModalHeader>
           <CModalTitle id="OptionalSizesExample1">
-            <div>
-              <h4 className="font-robotoCondensed">Post a Book</h4>
-            </div>
+            <h4 className="font-robotoCondensed">
+              {isEditMode ? "Edit Book" : "Post a Book"}
+            </h4>
           </CModalTitle>
         </CModalHeader>
         <CModalBody>
@@ -178,25 +193,20 @@ const Dashboard = () => {
                 isLoading ? "bg-gray-400 cursor-not-allowed" : "bg-green-500"
               }`}
               onClick={handlePost}
-              disabled={isLoading} // Optional: Disable button while loading
+              disabled={isLoading}
             >
-              {isLoading ? "Loading..." : "Post"}
+              {isLoading ? "Loading..." : isEditMode ? "Update" : "Post"}
             </button>
           </div>
         </CModalBody>
       </CModal>
       <div className="flex flex-col gap-2 mt-3">
-      {bookData.map((elem) => (
+        {bookData.map((book) => (
           <DashTab
-            key={elem.id}
-            photolink={elem.photolink}
-            bookname={elem.bookname}
-            author={elem.author}
-            isbn={elem.isbn}
-            bookcategory={elem.bookcategory}
-            booktype={elem.booktype}
-            bookcode={elem.bookcode}
-            rackno={elem.rackno}
+            key={book.id}
+            {...book}
+            onUpdate={() => handleUpdate(book)} 
+            refetchData={fetchData} 
           />
         ))}
       </div>

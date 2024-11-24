@@ -1,5 +1,5 @@
 import React from "react";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const DashTab = ({
@@ -8,11 +8,13 @@ const DashTab = ({
   author,
   isbn,
   bookcategory,
+  booktype,
   bookcode,
   rackno,
-  booktype
+  onUpdate,
+  refetchData,
 }) => {
-  const handleReturn = async (bookCode) => {
+  const handleDelete = async (bookCode) => {
     const token = localStorage.getItem("authToken");
 
     if (!token) {
@@ -22,40 +24,51 @@ const DashTab = ({
     }
 
     try {
-      console.log("Attempting to return book with bookCode:", bookCode);
+      console.log("Attempting to delete book with bookCode:", bookCode);
 
-      const response = await fetch(`http://localhost:5000/user/return/${bookCode}`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await fetch(
+        `http://localhost:5000/librarian/remove/${bookCode}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       if (response.ok) {
+        // Check if the response has JSON data
         const data = await response.json();
-        console.log("Book returned successfully:", data);
-        toast.success("Book returned successfully", {
-          position: "top-center"
+        console.log(data);
+        console.log("Delete response:", data);
+        toast.success("Book deleted successfully", {
+          position: "top-center",
         });
-        refetchData();
+        refetchData(); // Trigger UI update
       } else {
+        // Handle errors returned by the server
         const errorData = await response.json();
-        console.error("Failed to return the book:", errorData);
-        alert("Failed to return the book.");
+        console.error("Failed to delete the book:", errorData);
+        toast.error(errorData.message || "Failed to delete book!", {
+          position: "top-center",
+        });
       }
     } catch (error) {
-      console.error("Error returning book:", error);
-      alert("Error returning the book. Please try again.");
+      // Handle unexpected errors
+      console.error("Error during delete operation:", error);
+      toast.error("Unexpected error occurred while deleting the book!", {
+        position: "top-center",
+      });
     }
   };
 
   return (
     <div>
-      <div className="w-[60vw] flex gap-5 bg-white rounded-md p-2">
+      <div className="w-[60vw] flex justify-evenly bg-white rounded-md p-2">
         <div className="rounded-md flex flex-col justify-center" id="tab-image">
           <img
-            className="object-cover rounded-md h-[32vh] w-[20vw]"
+            className="object-cover rounded-md h-[32vh] w-[22vw]"
             src={photolink}
             alt="book cover"
           />
@@ -68,6 +81,10 @@ const DashTab = ({
               AUTHOR:
             </span>
             {" " + author}
+          </h4>
+          <h4 className="font-robotoCondensed">
+            <span className="font-bold">BOOK CODE: </span>
+            {" " + bookcode}
           </h4>
           <h4 className="font-robotoCondensed">
             <span className="font-bold">ISBN: </span>
@@ -87,12 +104,22 @@ const DashTab = ({
           </h4>
         </div>
 
-        <div id="return" className="flex flex-col justify-center items-center gap-2">
+        <div
+          id="buttons"
+          className="flex flex-col justify-center items-center gap-2"
+        >
           <button
             className="bg-blue-500 rounded-sm px-3 py-1 font-robotoCondensed font-bold text-white"
-            onClick={() => handleReturn(bookcode)}
+            onClick={onUpdate}
           >
             UPDATE
+          </button>
+
+          <button
+            className="bg-red-500 rounded-sm px-3 py-1 font-robotoCondensed font-bold text-white"
+            onClick={() => handleDelete(bookcode)}
+          >
+            DELETE
           </button>
         </div>
       </div>

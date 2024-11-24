@@ -156,7 +156,7 @@ async function getBorrowedBookDetails(email) {
 
 async function updateBookByCode(
   bookCode,
-  { bookName, author, rackNo, photolink, bookType, isbn }
+  { bookName, author, rackNo, photoLink, bookType, isbn, bookCategory }
 ) {
   const client = await getClient();
   const query = `
@@ -167,7 +167,8 @@ async function updateBookByCode(
             rackno = $3,
             photolink = $4,
             booktype = $6,
-            isbn = $7
+            isbn = $7,
+            bookcategory = $8
         WHERE bookcode = $5
         RETURNING *;
     `;
@@ -176,10 +177,11 @@ async function updateBookByCode(
     bookName,
     author,
     rackNo,
-    photolink,
+    photoLink,
     bookCode,
     bookType,
     isbn,
+    bookCategory
   ];
 
   try {
@@ -194,6 +196,7 @@ async function updateBookByCode(
 }
 
 async function deleteBook(bookcode) {
+  console.log("trying to delete");
   const client = await getClient();
   const query = `DELETE FROM booksTable WHERE bookCode = $1`;
   try {
