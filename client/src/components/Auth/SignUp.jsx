@@ -155,7 +155,9 @@ const SignUp = () => {
             className="w-[80%] h-[7%] rounded-md px-10 border-slate-700 border-2"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            onKeyDown={(event)=>{event.key==="Enter"?checkUserTypeAndProceed():null}}
           />
+         
           <button
             className="w-[80%] bg-slate-950 text-white h-[7%] rounded-md font-semibold font-robotoCondensed "
             onClick={checkUserTypeAndProceed}

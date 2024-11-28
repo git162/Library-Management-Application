@@ -12,6 +12,12 @@ const Container = ({ type }) => {
   const [filteredData, setFilteredData] = useState([]);
   const [searchText, setSearchText] = useState([]);
 
+  useEffect(()=>{
+    if (searchText === '') {
+      setFilteredData(bookData);
+    }
+  },[searchText])
+
   const params = useParams();
   const bookType = type === "description" ? params.bookType : undefined;
 
@@ -58,18 +64,28 @@ const Container = ({ type }) => {
   return (
     <div className=" bg-slate-200 flex flex-col items-center">
       <ToastContainer />
-      {/* <h4 className="font-roboto self-center fixed bg-white p-2 top-20 rounded-md font-semibold">
-        ALL BOOKS
-      </h4> */}
       <div className="flex fixed top-20">
         <input
           type="text"
-          placeholder="Search for books,authors,book genre"
+          placeholder="Search for books, authors, book genre"
           onChange={(evnt) => {
             setSearchText(evnt.target.value);
           }}
+          onKeyDown={(evnt) => {
+            if (evnt.key === "Enter") {
+              const filtered = bookData.filter((book) => {
+                return (
+                  book.bookname.toLowerCase().includes(searchText.toLowerCase()) ||
+                  book.author.toLowerCase().includes(searchText.toLowerCase()) ||
+                  book.bookcategory.toLowerCase().includes(searchText.toLowerCase())
+                );
+              });
+              console.log(filtered);
+              setFilteredData(filtered);
+            }
+          }}
           value={searchText}
-          className="bg-white w-60 p-2 placeholder:italic placeholder:text-slate-400 h-10 ml-3 rounded-md  cursor-text focus:border-orange-500 focus:w-[500px] transition-width duration-400 ease-in-out"
+          className="bg-white w-60 p-2 placeholder:italic placeholder:text-slate-400 h-10 ml-3 rounded-md cursor-text focus:border-black focus:w-[500px] focus:ring-2 focus:ring-black transition-all duration-500 ease-in-out"
         ></input>
         <button
           onClick={() => {
@@ -78,24 +94,20 @@ const Container = ({ type }) => {
                 book.bookname
                   .toLowerCase()
                   .includes(searchText.toLowerCase()) ||
-                book.author
-                  .toLowerCase()
-                  .includes(searchText.toLowerCase()) ||
-                  book.bookcategory
+                book.author.toLowerCase().includes(searchText.toLowerCase()) ||
+                book.bookcategory
                   .toLowerCase()
                   .includes(searchText.toLowerCase())
-
               );
             });
-            console.log(filtered);
-
             setFilteredData(filtered);
           }}
-          className="bg-black text-white h-10 w-16 ml-2 rounded-md p-1 font-semibold active:bg-slate-300"
+          className="bg-black text-white h-10 w-16 ml-2 rounded-md p-1 font-semibold active:bg-slate-300 transition-all duration-300 ease-in-out"
         >
           Search
         </button>
       </div>
+
       <div
         id="cards-container"
         className="bg-slate-200 min-h-screen flex overflow-x-hidden justify-center flex-wrap gap-16 min-w-screen mt-12 pt-20"
