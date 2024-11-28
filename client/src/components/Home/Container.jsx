@@ -9,6 +9,8 @@ import "react-toastify/dist/ReactToastify.css";
 const Container = ({ type }) => {
   const navigate = useNavigate();
   const [bookData, setBookData] = useState([]);
+  const [filteredData, setFilteredData] = useState([]);
+  const [searchText, setSearchText] = useState([]);
 
   const params = useParams();
   const bookType = type === "description" ? params.bookType : undefined;
@@ -39,6 +41,8 @@ const Container = ({ type }) => {
       if (response.ok) {
         const jsonData = await response.json();
         setBookData(jsonData);
+        setFilteredData(jsonData);
+        console.log(jsonData);
       } else {
         console.error("Error fetching data:", await response.json());
       }
@@ -52,14 +56,51 @@ const Container = ({ type }) => {
   }, [type, bookType]);
 
   return (
-    <div className="">
+    <div className=" bg-slate-200 flex flex-col items-center">
       <ToastContainer />
-      <h4 className="font-roboto font-semibold">ALL BOOKS</h4>
+      {/* <h4 className="font-roboto self-center fixed bg-white p-2 top-20 rounded-md font-semibold">
+        ALL BOOKS
+      </h4> */}
+      <div className="flex fixed top-20">
+        <input
+          type="text"
+          placeholder="Search for books,authors,book genre"
+          onChange={(evnt) => {
+            setSearchText(evnt.target.value);
+          }}
+          value={searchText}
+          className="bg-white w-60 p-2 placeholder:italic placeholder:text-slate-400 h-10 ml-3 rounded-md  cursor-text focus:border-orange-500 focus:w-[500px] transition-width duration-400 ease-in-out"
+        ></input>
+        <button
+          onClick={() => {
+            const filtered = bookData.filter((book) => {
+              return (
+                book.bookname
+                  .toLowerCase()
+                  .includes(searchText.toLowerCase()) ||
+                book.author
+                  .toLowerCase()
+                  .includes(searchText.toLowerCase()) ||
+                  book.bookcategory
+                  .toLowerCase()
+                  .includes(searchText.toLowerCase())
+
+              );
+            });
+            console.log(filtered);
+
+            setFilteredData(filtered);
+          }}
+          className="bg-black text-white h-10 w-16 ml-2 rounded-md p-1 font-semibold active:bg-slate-300"
+        >
+          Search
+        </button>
+      </div>
       <div
         id="cards-container"
-        className="bg-slate-200 min-h-screen flex overflow-x-hidden justify-center flex-wrap gap-16 min-w-screen mt-10 pt-20"
+        className="bg-slate-200 min-h-screen flex overflow-x-hidden justify-center flex-wrap gap-16 min-w-screen mt-12 pt-20"
       >
-        {bookData.map((elem) => (
+        {filteredData.map((elem) => (
           <Card
             key={elem.id}
             photolink={elem.photolink}

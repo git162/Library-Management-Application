@@ -68,7 +68,7 @@ const DashTab = ({
       <div className="w-[60vw] flex justify-evenly bg-white rounded-md p-2">
         <div className="rounded-md flex flex-col justify-center" id="tab-image">
           <img
-            className="object-cover rounded-md h-[32vh] w-[22vw]"
+            className="object-cover rounded-md h-[40vh] w-[22vw]"
             src={photolink}
             alt="book cover"
           />

@@ -39,11 +39,14 @@ const Header = () => {
               Books
             </Link>
           </li>
-          <li className="hover:text-red-400">
+          {userType === 0 && (
+            <li className="hover:text-red-400">
             <Link to="/account" className="no-underline text-inherit">
               Account
             </Link>
           </li>
+          )}
+          
           {userType === 1 && (
             <li className="hover:text-red-400">
               <Link to="/dashboard" className="no-underline text-inherit">
