@@ -79,7 +79,7 @@ const SignUp = () => {
       toast.success("Signed Up !!!", {
         position: "top-center",
       });
-      navigate("/books");
+      navigate("/home");
       window.location.reload();
 
     } catch (error) {

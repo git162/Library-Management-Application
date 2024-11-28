@@ -134,7 +134,12 @@ async function getBorrowedBookDetails(email) {
                 b.bookcategory,
                 b.author,
                 b.rackNo,
-                l.borrowDate
+                l.borrowDate,
+                l.returnDate,
+                CASE
+                    WHEN CURRENT_DATE > l.returnDate THEN (CURRENT_DATE - l.returnDate) * 5
+                    ELSE 0
+                END AS calculatedFine
             FROM
                 booksTable b
             JOIN
@@ -152,6 +157,7 @@ async function getBorrowedBookDetails(email) {
     client.release();
   }
 }
+
 
 
 async function updateBookByCode(

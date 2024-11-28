@@ -1,4 +1,4 @@
-const { createUser,checkUser, createLoan, deleteLoan } = require("../models/userModels");
+const { createUser,checkUser, createLoan, deleteLoan, getUserFine } = require("../models/userModels");
 const userAuth = require("../auth/userAuth");
 
 async function handleUserSignUp(req, res) {
@@ -67,10 +67,24 @@ async function handleLoan(req, res) {
   }
 }
 
+async function getFine(req, res){
+  const email = req.body.email;
+  try{
+    const result = await getUserFine(email);
+    res.status(200).json(result);
+  }catch (err) {
+    res.status(500).json({
+      msg: "Unable to fetch fine ",
+      err,
+    });
+  }
+}
+
 async function handleReturn(req, res) {
   const bookCode = req.params.bookcode;
+  const email = req.body.email;
   try {
-    const result = await deleteLoan(bookCode);
+    const result = await deleteLoan(bookCode,email);
 
     res.status(200).json({
       msg: "Book returned successfully",
@@ -86,4 +100,4 @@ async function handleReturn(req, res) {
   }
 }
 
-module.exports = { handleUserSignUp,handleSignIn, handleLoan, handleReturn };
+module.exports = { handleUserSignUp,handleSignIn, handleLoan, handleReturn, getFine };

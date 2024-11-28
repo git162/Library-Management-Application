@@ -11,14 +11,22 @@ const Tab = ({
   bookcode,
   rackno,
   borrowdate,
+  returndate,
   refetchData,
+  fine
 }) => {
   const handleReturn = async (bookCode) => {
     const token = localStorage.getItem("authToken");
+    const email = localStorage.getItem("email"); 
 
     if (!token) {
       console.error("No token found. Please log in.");
       navigate("/signin");
+      return;
+    }
+
+    if (!email) {
+      alert("Please log in to issue a book.");
       return;
     }
 
@@ -31,6 +39,7 @@ const Tab = ({
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
+        body: JSON.stringify({ email:email }),
       });
 
       if (response.ok) {
@@ -56,7 +65,7 @@ const Tab = ({
       <div className="w-[60vw] flex gap-5 bg-white rounded-md p-2">
         <div className="rounded-md flex flex-col justify-center" id="tab-image">
           <img
-            className="object-cover rounded-md h-[32vh] w-[20vw]"
+            className="object-cover rounded-md h-[44vh] w-[20vw]"
             src={photolink}
             alt="book cover"
           />
@@ -75,12 +84,24 @@ const Tab = ({
             {" " + isbn}
           </h4>
           <h4 className="font-robotoCondensed">
+            <span className="font-bold">RACK NO: </span>
+            {" " + rackno}
+          </h4>
+          <h4 className="font-robotoCondensed">
             <span className="font-bold">CATEGORY:</span>
             {" " + bookcategory}
           </h4>
           <h4 className="font-robotoCondensed">
             <span className="font-bold">BORROW DATE:</span>
             {" " + borrowdate}
+          </h4>
+          <h4 className="font-robotoCondensed">
+            <span className="font-bold">RETURN DATE:</span>
+            {" " + returndate}
+          </h4>
+          <h4 className="font-robotoCondensed">
+            <span className="font-bold">FINE:</span>
+            {" " + fine}
           </h4>
         </div>
 

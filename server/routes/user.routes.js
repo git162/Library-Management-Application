@@ -1,6 +1,6 @@
 const { Router } = require("express");
 const router = Router();
-const { handleUserSignUp, handleSignIn, handleLoan, handleReturn } = require("../controllers/userController");
+const { handleUserSignUp, handleSignIn, handleLoan, handleReturn, getFine } = require("../controllers/userController");
 const { checkUniqueUser,generateAccessToken, verifyToken } = require("../middlewares/userMiddlewares");
 const { getAllBooks, getBooksByName, getBooksByType, getBorrowedBooks } = require("../controllers/librarianController");
 
@@ -13,6 +13,7 @@ router.get('/books',verifyToken, getAllBooks);
 router.get('/booksbyname',verifyToken, getBooksByName);
 router.get('/booksbytype/:booktype', verifyToken, getBooksByType);
 router.post('/borrowedbooks',verifyToken, getBorrowedBooks);
+router.post('/fine',verifyToken, getFine);
 router.post('/loan/:bookcode',verifyToken, handleLoan);
 router.delete('/return/:bookcode',verifyToken, handleReturn);
 

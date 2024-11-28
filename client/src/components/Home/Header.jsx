@@ -30,7 +30,7 @@ const Header = () => {
       <div className="container mx-auto mt-2">
         <ul className="flex justify-center items-center gap-32 font-semibold text-xl cursor-pointer">
           <li className="hover:text-red-400">
-            <Link to="/" className="no-underline text-inherit">
+            <Link to="/home" className="no-underline text-inherit">
               Home
             </Link>
           </li>

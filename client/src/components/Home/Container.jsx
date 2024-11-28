@@ -52,12 +52,12 @@ const Container = ({ type }) => {
   }, [type, bookType]);
 
   return (
-    <div className="w-full h-full flex justify-center bg-slate-200">
+    <div className="">
       <ToastContainer />
       <h4 className="font-roboto font-semibold">ALL BOOKS</h4>
       <div
         id="cards-container"
-        className="bg-slate-200 min-h-screen flex overflow-x-hidden flex-wrap gap-7 min-w-screen mt-10 pt-20"
+        className="bg-slate-200 min-h-screen flex overflow-x-hidden justify-center flex-wrap gap-16 min-w-screen mt-10 pt-20"
       >
         {bookData.map((elem) => (
           <Card
@@ -70,6 +70,7 @@ const Container = ({ type }) => {
             booktype={elem.booktype}
             pageType={type}
             status={elem.status}
+            rackno={elem.rackno}
             bookcode={elem.bookcode}
             refetchData={fetchData}
           />

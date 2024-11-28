@@ -66,7 +66,7 @@ const SignIn = () => {
       toast.success("Signed In !!!", {
         position: "top-center"
       });
-      navigate("/books");
+      navigate("/home");
       window.location.reload();
     } catch (error) {
       if (error instanceof z.ZodError) {

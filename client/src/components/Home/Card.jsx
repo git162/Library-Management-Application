@@ -1,6 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { toast, ToastContainer } from 'react-toastify';
+import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 const Card = ({
@@ -12,14 +12,13 @@ const Card = ({
   pageType,
   booktype,
   status,
+  rackno,
   bookcode,
-  refetchData
+  refetchData,
 }) => {
-
   const issueBook = async (bookCode) => {
-    const email = localStorage.getItem("email"); 
+    const email = localStorage.getItem("email");
     const token = localStorage.getItem("authToken");
-    
 
     if (!email) {
       alert("Please log in to issue a book.");
@@ -35,33 +34,36 @@ const Card = ({
     try {
       console.log("Attempting to issue book with bookCode:", bookCode);
 
-      const response = await fetch(`http://localhost:5000/user/loan/${bookCode}`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`, 
-        },
-        body: JSON.stringify({ email:email }), 
-      });
+      const response = await fetch(
+        `http://localhost:5000/user/loan/${bookCode}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ email: email }),
+        }
+      );
 
       if (response.ok) {
         const data = await response.json();
         refetchData();
         console.log("Book issued successfully:", data);
         toast.success("Book issued successfully", {
-          position: "top-center"
+          position: "top-center",
         });
       } else {
         const errorData = await response.json();
         console.error("Failed to issue the book:", errorData);
         toast.error("Failed to issue the book", {
-          position: "top-center"
+          position: "top-center",
         });
       }
     } catch (error) {
       console.error("Error issuing book:", error);
       toast.error("Error issuing the book. Please try again", {
-        position: "top-center"
+        position: "top-center",
       });
     }
   };
@@ -69,12 +71,12 @@ const Card = ({
   return (
     <div>
       <div
-        className="p-1 w-[20vw] bg-white shadow-md rounded-lg overflow-hidden"
+        className="p-1 w-[23vw] bg-white shadow-md rounded-lg overflow-hidden"
         id="card-container"
       >
         <div className="rounded-md" id="card-image">
           <img
-            className="object-cover rounded-md h-[25vh] w-[20vw]"
+            className="object-cover rounded-md h-[25vh] w-[23vw]"
             src={photolink}
             alt="book cover"
           />
@@ -88,10 +90,16 @@ const Card = ({
             {" " + author}
           </h4>
           {pageType === "description" && (
-            <h4 className="text-sm">
-              <span className="font-robotoCondensed font-bold">ISBN:</span>
-              {" " + isbn}
-            </h4>
+            <>
+              <h4 className="text-sm">
+                <span className="font-robotoCondensed font-bold">ISBN:</span>
+                {" " + isbn}
+              </h4>
+              <h4 className="text-sm">
+                <span className="font-robotoCondensed font-bold">RACK NO:</span>
+                {" " + rackno}
+              </h4>
+            </>
           )}
 
           <h4 className="text-sm">
@@ -123,8 +131,10 @@ const Card = ({
             className={`ml-4 text-white px-3 py-1 font-robotoCondensed rounded-sm ${
               status === "available" ? "bg-green-500" : "bg-red-500"
             }`}
-            onClick={() =>{ issueBook(bookcode);}} 
-            disabled={status !== "available"} 
+            onClick={() => {
+              issueBook(bookcode);
+            }}
+            disabled={status !== "available"}
           >
             {status === "available" ? (
               <Link className="no-underline text-inherit">Issue</Link>

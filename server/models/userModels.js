@@ -41,6 +41,19 @@ async function findUserByEmail(email) {
   }
 }
 
+async function getUserFine(email){
+  const client = await getClient();
+  try {
+    const query = `SELECT totalfine FROM usersTable WHERE email = $1`;
+    const result = await client.query(query, [email]);
+    return result.rows[0];
+  } catch (err) {
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+
 async function createLoan(bookCode, email) {
   const client = await getClient();
   try {
@@ -83,30 +96,61 @@ async function createLoan(bookCode, email) {
   }
 }
 
-async function deleteLoan(bookCode) {
+async function deleteLoan(bookCode, email) {
   const client = await getClient();
   try {
+    await client.query('BEGIN'); 
+
+    
     const findBookQuery = `SELECT id FROM booksTable WHERE bookCode = $1`;
     const bookResult = await client.query(findBookQuery, [bookCode]);
 
     if (bookResult.rows.length === 0) {
       throw new Error("Book not found");
     }
-
     const bookId = bookResult.rows[0].id;
 
-    const deleteQuery = `DELETE FROM Loans WHERE bookId = $1 RETURNING *`;
-    const deleteResult = await client.query(deleteQuery, [bookId]);
+    
+    const findLoanQuery = `
+      SELECT
+        l.returnDate,
+        CASE
+          WHEN CURRENT_DATE > l.returnDate THEN (CURRENT_DATE - l.returnDate) * 5
+          ELSE 0
+        END AS fine,
+        l.userId
+      FROM Loans l
+      WHERE l.bookId = $1
+    `;
+    const loanResult = await client.query(findLoanQuery, [bookId]);
 
-    if (deleteResult.rows.length === 0) {
+    if (loanResult.rows.length === 0) {
       throw new Error("Loan record not found");
     }
 
+    const { fine, userId } = loanResult.rows[0];
+
+    
+    const updateFineQuery = `
+      UPDATE usersTable
+      SET totalFine = totalFine + $1
+      WHERE email = $2
+    `;
+    await client.query(updateFineQuery, [fine, email]);
+
+ 
+    const deleteQuery = `DELETE FROM Loans WHERE bookId = $1 RETURNING *`;
+    const deleteResult = await client.query(deleteQuery, [bookId]);
+
+  
     const updateAvailability = `UPDATE booksTable SET status = 'available' WHERE id = $1`;
     await client.query(updateAvailability, [bookId]);
 
-    return deleteResult.rows[0];
+    await client.query('COMMIT'); 
+
+    return { loan: deleteResult.rows[0], fine };
   } catch (err) {
+    await client.query('ROLLBACK'); 
     console.error("Error in deleteLoan:", err);
     throw err;
   } finally {
@@ -114,4 +158,5 @@ async function deleteLoan(bookCode) {
   }
 }
 
-module.exports = { createUser, checkUser,findUserByEmail, createLoan, deleteLoan };
+
+module.exports = { createUser, checkUser,findUserByEmail, createLoan, deleteLoan, getUserFine };
